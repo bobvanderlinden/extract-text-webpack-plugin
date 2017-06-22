@@ -64,7 +64,7 @@ class ExtractTextPlugin {
       }, this);
     } else if (checkedChunks.indexOf(chunk) < 0) {
       checkedChunks.push(chunk);
-      chunk.modules.slice().forEach((module) => {
+      chunk.mapModules(c => c).forEach((module) => {
         intoChunk.addModule(module);
         module.addChunk(intoChunk);
       });
@@ -77,7 +77,7 @@ class ExtractTextPlugin {
 
   renderExtractedChunk(chunk) {
     const source = new ConcatSource();
-    chunk.modules.forEach((module) => {
+    chunk.mapModules(c => c).forEach((module) => {
       const moduleSource = module.source();
       source.add(this.applyAdditionalInformation(moduleSource, module.additionalInformation));
     }, this);
@@ -181,7 +181,7 @@ class ExtractTextPlugin {
           }, this);
           extractedChunks.forEach((extractedChunk) => {
             if (!isInitialOrHasNoParents(extractedChunk)) {
-              extractedChunk.modules.slice().forEach((module) => {
+              extractedChunk.mapModules(c => c).forEach((module) => {
                 extractedChunk.removeModule(module);
               });
             }
@@ -192,8 +192,8 @@ class ExtractTextPlugin {
       });
       compilation.plugin('additional-assets', (callback) => {
         extractedChunks.forEach((extractedChunk) => {
-          if (extractedChunk.modules.length) {
-            extractedChunk.modules.sort((a, b) => {
+          if (extractedChunk.mapModules(c => c).length) {
+            extractedChunk.mapModules(c => c).sort((a, b) => {
               if (!options.ignoreOrder && isInvalidOrder(a, b)) {
                 compilation.errors.push(new OrderUndefinedError(a.getOriginalModule()));
                 compilation.errors.push(new OrderUndefinedError(b.getOriginalModule()));
